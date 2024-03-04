@@ -1,0 +1,7 @@
+datasets
+transformers
+scipy
+torch
+scikit-learn
+accelerate
+flash-attn
