@@ -158,6 +158,7 @@ def ablate_pretraining_data_structure(data, exidx2out, perturb_method, perturb_f
     # check that exidx2out keys is 0-len(exidx2out)
     assert set(exidx2out.keys()) == set(range(len(exidx2out)))
     data = data.select(range(len(exidx2out)))
+    exidx2out = {exidx: exidx2out[exidx]['numepochs2out'][1]['max_loss_decrease'] for exidx in exidx2out}
     thres, exidx_perturbtokenidx2strength = calculate_threshold(exidx2out, perturb_tokenidxs, perturb_fraction, f_log)
     perturbed_data, perturbed_exidx_tokenidxs = perturb_data(data, len(exidx2out), exidx_perturbtokenidx2strength, thres, perturb_method, f_log, replace_token_distr)
     num_perturbed_tokens = len(perturbed_exidx_tokenidxs)
@@ -299,16 +300,16 @@ if __name__ == '__main__':
     data = load_from_disk(args.data_dir)
     
     if args.setting == 'one_structure':
-        detected_scores = pkl.load(open(args.structure1_detected_scores_fname))
+        detected_scores = pkl.load(open(args.structure1_detected_scores_fname, 'rb'))
         ablate_pretraining_data_structure(data, detected_scores, perturb_method, args.perturb_fraction, perturb_tokenidxs, args.out_dir, replace_token_distr)
     
     elif args.setting == 'two_structure_diff':
-        struct1_detected_scores = pkl.load(open(args.structure1_detected_scores_fname))
-        struct2_detected_scores = pkl.load(open(args.structure2_detected_scores_fname))
+        struct1_detected_scores = pkl.load(open(args.structure1_detected_scores_fname, 'rb'))
+        struct2_detected_scores = pkl.load(open(args.structure2_detected_scores_fname, 'rb'))
         ablate_pretraining_data_structure_diff(data, struct1_detected_scores, struct2_detected_scores, perturb_method, args.perturb_fraction, perturb_tokenidxs, args.out_dir, replace_token_distr)
     
     elif args.setting == 'one_structure_minus_repetition':
-        detected_scores = pkl.load(open(args.structure1_detected_scores_fname))
+        detected_scores = pkl.load(open(args.structure1_detected_scores_fname, 'rb'))
         ablate_parallel_minus_copy(data, detected_scores, perturb_method, args.perturb_fraction, perturb_tokenidxs, args.out_dir, replace_token_distr)
 
     else:
